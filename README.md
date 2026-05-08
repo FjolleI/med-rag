@@ -9,13 +9,19 @@
 ![AWS](https://img.shields.io/badge/AWS-EC2-FF9900?logo=amazonaws&logoColor=white)
 ![License](https://img.shields.io/badge/License-MIT-green)
 
+## LIVE NOW
+
+> **Try MedRAG instantly (no setup):**
+>
+> **[Open Web App](https://16-170-207-120.sslip.io/)** | **[Open API Docs](https://16-170-207-120.sslip.io/docs)** | **[Open MCP Info](https://16-170-207-120.sslip.io/mcp/info)**
+
 ## Live Demo
 
-- **Web app:** `https://16-170-207-120.sslip.io/`
-- **API docs:** `https://16-170-207-120.sslip.io/docs`
-- **MCP endpoint:** `https://16-170-207-120.sslip.io/mcp`
-- **MCP info:** `https://16-170-207-120.sslip.io/mcp/info`
-- **Health:** `https://16-170-207-120.sslip.io/health`
+- **Web app:** [https://16-170-207-120.sslip.io/](https://16-170-207-120.sslip.io/)
+- **API docs:** [https://16-170-207-120.sslip.io/docs](https://16-170-207-120.sslip.io/docs)
+- **MCP endpoint:** [https://16-170-207-120.sslip.io/mcp](https://16-170-207-120.sslip.io/mcp)
+- **MCP info:** [https://16-170-207-120.sslip.io/mcp/info](https://16-170-207-120.sslip.io/mcp/info)
+- **Health:** [https://16-170-207-120.sslip.io/health](https://16-170-207-120.sslip.io/health)
 
 > You can replace these with your own domain after redeploy:
 > - `https://<your-domain>/`
