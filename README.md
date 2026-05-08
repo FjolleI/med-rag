@@ -1,70 +1,90 @@
 # MedRAG
 
-Hosted **Retrieval-Augmented Generation** service with a built-in **Model Context Protocol** server. Drop the URL into Claude Desktop, Cursor, or any other MCP-aware client and you get three tools — `ingest_document`, `query`, `list_documents` — backed by a FastAPI app, Postgres, Redis, and a free-tier-friendly EC2 deploy.
+> **Production-grade medical RAG + MCP system showcase**  
+> Upload domain documents, retrieve evidence-backed context, and query through both a modern chat UI and MCP tools.
 
+![FastAPI](https://img.shields.io/badge/FastAPI-0.115+-009688?logo=fastapi&logoColor=white)
+![Docker](https://img.shields.io/badge/Docker-Compose-2496ED?logo=docker&logoColor=white)
+![MCP](https://img.shields.io/badge/MCP-Streamable_HTTP-6E56CF)
+![AWS](https://img.shields.io/badge/AWS-EC2-FF9900?logo=amazonaws&logoColor=white)
+![License](https://img.shields.io/badge/License-MIT-green)
+
+## Live Demo
+
+- **Web app:** `https://16-170-207-120.sslip.io/`
+- **API docs:** `https://16-170-207-120.sslip.io/docs`
+- **MCP endpoint:** `https://16-170-207-120.sslip.io/mcp`
+- **MCP info:** `https://16-170-207-120.sslip.io/mcp/info`
+- **Health:** `https://16-170-207-120.sslip.io/health`
+
+> You can replace these with your own domain after redeploy:
+> - `https://<your-domain>/`
+> - `https://<your-domain>/mcp`
+
+## What This Showcases
+
+- Startup-grade AI product UX with a chat-style web demo
+- Retrieval-augmented generation (RAG) over ingestible documents
+- MCP server integration for Cursor / Claude Desktop tool calling
+- Real backend mode (Pinecone + OpenAI) and zero-cost mock mode
+- Production deployment blueprint on AWS EC2 + Caddy auto-HTTPS
+
+## How It Works
+
+```text
+                        +------------------------------+
+                        |  Browser / Cursor / Claude  |
+                        +---------------+--------------+
+                                        |
+                              HTTPS (Caddy + TLS)
+                                        |
+                      +-----------------v------------------+
+                      |        FastAPI (MedRAG API)        |
+                      |  /api/v1/*   /mcp   /mcp/info      |
+                      +-----------+---------------+---------+
+                                  |               |
+                          retrieval|               |tool calls
+                                  |               |
+                     +------------v---+      +----v----------------+
+                     | Pinecone Index |      |  MCP Streamable-HTTP|
+                     | (integrated)   |      |  (ingest/query/list)|
+                     +----------------+      +----------------------+
+                                  |
+                         context chunks
+                                  |
+                           +------v------+
+                           | OpenAI LLM  |
+                           +-------------+
 ```
-┌─ Browser / MCP client ─┐
-│                         │
-└─────┬───────────────────┘
-      │  HTTPS (auto-cert via Caddy + Let's Encrypt)
-┌─────▼─────────────────────────────────────────────┐
-│            EC2 box · docker compose               │
-│  caddy ──► api (FastAPI + MCP) ──► postgres       │
-│                                  └► redis         │
-└───────────────────────────────────────────────────┘
-```
 
-| Surface | URL |
-|---|---|
-| Landing page + interactive demo | `https://16-170-207-120.sslip.io/` |
-| OpenAPI / Swagger | `https://16-170-207-120.sslip.io/docs` |
-| MCP streamable-http endpoint | `https://16-170-207-120.sslip.io/mcp` |
-| MCP capabilities (JSON) | `https://16-170-207-120.sslip.io/mcp/info` |
-| Health check | `https://16-170-207-120.sslip.io/health` |
+## Try It (Step-by-step)
 
-## Quickstart
-
-### Local (no Docker)
+### 1) Local (no Docker)
 
 ```bash
 pip install -r requirements.txt
 cp .env.example .env
 uvicorn app.main:app --reload --port 8000
-# open http://localhost:8000
 ```
 
-### Local (Docker, full stack)
+Open `http://localhost:8000`.
+
+### 2) Local (Docker full stack)
 
 ```bash
 cp .env.example .env
 docker compose -f docker-compose.dev.yml up --build
 ```
 
-Compose keeps PostgreSQL/Redis URLs on the Docker network (`postgres`, `redis`); other variables come from `.env`.
+### 3) Use the demo flow
 
-### Production (AWS EC2)
+1. Ingest a document (`Upload document` panel)
+2. Ask a clinical-style question (`Ask MedRAG`)
+3. Inspect retrieved docs and citations in response payload
 
-See [DEPLOYMENT.md](./DEPLOYMENT.md) for the full walkthrough. TL;DR:
+### 4) Connect an MCP client
 
-```bash
-ssh ec2-user@<ip>
-curl -fsSL https://raw.githubusercontent.com/FjolleI/med-rag/main/deploy/bootstrap-ec2.sh | bash
-git clone https://github.com/FjolleI/med-rag.git && cd medrag
-cp .env.prod.example .env && $EDITOR .env
-./deploy/deploy.sh
-```
-
-## API
-
-| Method | Path | Description |
-|---|---|---|
-| `POST` | `/api/v1/ingest?title=…&content=…` | Add a document to the knowledge base |
-| `POST` | `/api/v1/query?query=…&top_k=3` | RAG query, returns retrieved docs + answer |
-| `GET`  | `/api/v1/documents` | List every ingested document |
-| `GET`  | `/health` | Health check |
-| `GET`  | `/mcp/info` | MCP capabilities & client config snippet |
-
-## Connect from an MCP client
+Use this in Cursor MCP settings or `claude_desktop_config.json`:
 
 ```json
 {
@@ -77,42 +97,97 @@ cp .env.prod.example .env && $EDITOR .env
 }
 ```
 
-Restart the client; the three MedRAG tools appear automatically.
+## Example API Calls
 
-## Stack
+### Ingest
 
-- Python 3.11, FastAPI, Uvicorn
-- Model Context Protocol via the official `mcp` Python SDK (streamable HTTP)
-- PostgreSQL 15, Redis 7
-- Docker, docker-compose
-- Caddy 2 (auto-HTTPS via Let's Encrypt)
-- Optional: Pinecone, Anthropic Claude, OpenAI GPT-4o (set keys in `.env` to leave mock mode)
-
-## Mock vs production mode
-
-The service starts in **mock mode** by default — an in-memory vector store and canned LLM responses make the deploy useful as a portfolio link without any third-party costs. Set real `PINECONE_API_KEY`, `ANTHROPIC_API_KEY`, and `OPENAI_API_KEY` in `.env` to flip the same image into production mode.
-
-## Layout
-
+```bash
+curl -X POST "https://16-170-207-120.sslip.io/api/v1/ingest?title=Diabetes%20Overview&content=Type%202%20diabetes%20is%20a%20chronic%20condition..."
 ```
+
+### Query
+
+```bash
+curl -X POST "https://16-170-207-120.sslip.io/api/v1/query?query=What%20is%20first-line%20treatment%20for%20type%202%20diabetes?&top_k=3"
+```
+
+### List indexed docs
+
+```bash
+curl "https://16-170-207-120.sslip.io/api/v1/documents"
+```
+
+### Health
+
+```bash
+curl "https://16-170-207-120.sslip.io/health"
+```
+
+## Use Cases
+
+- **Medical RAG assistant** for guideline-grounded Q&A
+- **Document QA sandbox** for domain-specific corpora
+- **MCP integration demo** for AI tool-calling workflows
+- **Portfolio backend showcase** combining infra, API, UX, and AI
+
+## Tech Stack
+
+- **Backend:** Python 3.11, FastAPI, Uvicorn
+- **AI protocol:** MCP (`mcp` Python SDK, streamable HTTP transport)
+- **Vector retrieval:** Pinecone integrated index
+- **Generation:** OpenAI Chat Completions (`gpt-4o-mini` default)
+- **State/storage:** PostgreSQL 15, Redis 7 (compose stack)
+- **Infra:** Docker, Docker Compose, Caddy, AWS EC2
+- **Testing:** Pytest
+
+## Demo Assets (placeholders)
+
+> Add screenshots/GIFs in `docs/assets/` and update links below.
+
+- `docs/assets/hero-ui.png` — landing + chat interface
+- `docs/assets/ingest-flow.gif` — upload document -> indexed
+- `docs/assets/query-flow.gif` — query -> retrieved context -> answer
+- `docs/assets/mcp-connect.png` — MCP config in Cursor/Claude
+
+## Production Deploy
+
+Full guide: [DEPLOYMENT.md](./DEPLOYMENT.md)
+
+Quick deploy:
+
+```bash
+ssh ec2-user@<ec2-public-ip>
+curl -fsSL https://raw.githubusercontent.com/FjolleI/med-rag/main/deploy/bootstrap-ec2.sh | bash
+git clone https://github.com/FjolleI/med-rag.git && cd medrag
+cp .env.prod.example .env && $EDITOR .env
+./deploy/deploy.sh
+```
+
+## Modes: Mock vs Real
+
+- **Mock mode** (`mock-dev` keys): no paid dependencies, ideal for demos
+- **Real mode**: set `PINECONE_API_KEY` + `OPENAI_API_KEY` and redeploy
+
+## Repository Layout
+
+```text
 medrag/
 ├── app/
-│   ├── main.py              FastAPI factory + /health + landing
-│   ├── mcp_server.py        MCP tools + /mcp streamable-http mount
-│   ├── routers/demo.py      /api/v1/{ingest,query,documents}
-│   ├── ingestion/           mock_vector_store.py
-│   ├── rag/                 mock_llm.py
-│   └── static/              landing page (HTML + CSS + JS)
-├── tests/                   pytest smoke tests
-├── deploy/                  Caddyfile + EC2 bootstrap + deploy.sh
-├── Dockerfile
-├── docker-compose.dev.yml   local dev stack
-├── docker-compose.prod.yml  EC2 prod stack with Caddy
-├── DEPLOYMENT.md            EC2 walkthrough
-└── README.md
+│   ├── main.py
+│   ├── mcp_server.py
+│   ├── routers/demo.py
+│   ├── services.py
+│   ├── ingestion/
+│   ├── rag/
+│   └── static/
+├── deploy/
+├── tests/
+├── docker-compose.dev.yml
+├── docker-compose.prod.yml
+└── DEPLOYMENT.md
 ```
 
-## Tests
+## Run Tests
 
 ```bash
 pip install -r requirements.txt

@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import logging
+import time
 from contextlib import asynccontextmanager
 from pathlib import Path
 
@@ -42,6 +43,7 @@ class Settings(BaseSettings):
 
 
 settings = Settings()
+START_TIME = time.time()
 
 
 @asynccontextmanager
@@ -105,12 +107,18 @@ def create_app() -> FastAPI:
     @app.get("/health", tags=["meta"])
     async def health_check() -> dict:
         from app.services import is_mock_mode
+        uptime_seconds = int(time.time() - START_TIME)
 
         return {
             "status": "ok",
             "mode": "mock" if is_mock_mode() else "production",
             "environment": settings.environment,
             "llm_provider": settings.llm_provider,
+            "service": "medrag",
+            "version": "1.0.0",
+            "uptime_seconds": uptime_seconds,
+            "docs_url": "/docs",
+            "mcp_info_url": "/mcp/info",
         }
 
     return app
