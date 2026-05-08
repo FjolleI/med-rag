@@ -16,11 +16,11 @@ Hosted **Retrieval-Augmented Generation** service with a built-in **Model Contex
 
 | Surface | URL |
 |---|---|
-| Landing page + interactive demo | `https://<domain>/` |
-| OpenAPI / Swagger | `https://<domain>/docs` |
-| MCP streamable-http endpoint | `https://<domain>/mcp` |
-| MCP capabilities (JSON) | `https://<domain>/mcp/info` |
-| Health check | `https://<domain>/health` |
+| Landing page + interactive demo | `https://16-170-207-120.sslip.io/` |
+| OpenAPI / Swagger | `https://16-170-207-120.sslip.io/docs` |
+| MCP streamable-http endpoint | `https://16-170-207-120.sslip.io/mcp` |
+| MCP capabilities (JSON) | `https://16-170-207-120.sslip.io/mcp/info` |
+| Health check | `https://16-170-207-120.sslip.io/health` |
 
 ## Quickstart
 
@@ -48,8 +48,8 @@ See [DEPLOYMENT.md](./DEPLOYMENT.md) for the full walkthrough. TL;DR:
 
 ```bash
 ssh ec2-user@<ip>
-curl -fsSL https://raw.githubusercontent.com/<you>/medrag/main/deploy/bootstrap-ec2.sh | bash
-git clone https://github.com/<you>/medrag.git && cd medrag
+curl -fsSL https://raw.githubusercontent.com/FjolleI/med-rag/main/deploy/bootstrap-ec2.sh | bash
+git clone https://github.com/FjolleI/med-rag.git && cd medrag
 cp .env.prod.example .env && $EDITOR .env
 ./deploy/deploy.sh
 ```
@@ -70,7 +70,7 @@ cp .env.prod.example .env && $EDITOR .env
 {
   "mcpServers": {
     "medrag": {
-      "url": "https://<your-domain>/mcp",
+      "url": "https://16-170-207-120.sslip.io/mcp",
       "transport": "streamable-http"
     }
   }

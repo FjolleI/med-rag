@@ -27,6 +27,11 @@ Stops the stack with `Ctrl+C`, brings it down with `docker compose -f docker-com
 
 See [DEPLOYMENT.md](./DEPLOYMENT.md).
 
+Live deployment:
+- App: `https://16-170-207-120.sslip.io/`
+- Docs: `https://16-170-207-120.sslip.io/docs`
+- MCP: `https://16-170-207-120.sslip.io/mcp`
+
 ## Smoke-test the API
 
 ```powershell
@@ -44,7 +49,7 @@ Or use the interactive UI at `http://localhost:8000` and the OpenAPI explorer at
 {
   "mcpServers": {
     "medrag": {
-      "url": "http://localhost:8000/mcp",
+      "url": "https://16-170-207-120.sslip.io/mcp",
       "transport": "streamable-http"
     }
   }

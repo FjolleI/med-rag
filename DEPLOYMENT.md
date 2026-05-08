@@ -49,7 +49,7 @@ ssh -i your-key.pem ubuntu@<ec2-public-ip>        # Ubuntu
 ## 2. Bootstrap Docker
 
 ```bash
-curl -fsSLO https://raw.githubusercontent.com/<you>/medrag/main/deploy/bootstrap-ec2.sh
+curl -fsSLO https://raw.githubusercontent.com/FjolleI/med-rag/main/deploy/bootstrap-ec2.sh
 bash bootstrap-ec2.sh
 exec sudo -u "$USER" bash -l        # pick up new docker group membership
 ```
@@ -66,7 +66,7 @@ docker compose version
 ## 3. Clone & configure
 
 ```bash
-git clone https://github.com/<you>/medrag.git
+git clone https://github.com/FjolleI/med-rag.git
 cd medrag
 cp .env.prod.example .env
 ```
@@ -120,11 +120,11 @@ Open in your browser:
 
 | URL                              | What you should see                                   |
 | -------------------------------- | ----------------------------------------------------- |
-| `https://<domain>/`              | Landing page with interactive demo                    |
-| `https://<domain>/docs`          | Swagger / OpenAPI explorer                            |
-| `https://<domain>/health`        | `{"status":"ok",...}`                                 |
-| `https://<domain>/mcp/info`      | MCP capabilities + ready-to-paste client config       |
-| `https://<domain>/mcp`           | MCP streamable-http endpoint (HTTP 405 in a browser — that's expected; it speaks JSON-RPC over POST/SSE) |
+| `https://16-170-207-120.sslip.io/`              | Landing page with interactive demo                    |
+| `https://16-170-207-120.sslip.io/docs`          | Swagger / OpenAPI explorer                            |
+| `https://16-170-207-120.sslip.io/health`        | `{"status":"ok",...}`                                 |
+| `https://16-170-207-120.sslip.io/mcp/info`      | MCP capabilities + ready-to-paste client config       |
+| `https://16-170-207-120.sslip.io/mcp`           | MCP streamable-http endpoint (HTTP 405 in a browser — that's expected; it speaks JSON-RPC over POST/SSE) |
 
 ---
 
@@ -136,7 +136,7 @@ Add to `claude_desktop_config.json` (or Cursor's MCP settings):
 {
   "mcpServers": {
     "medrag": {
-      "url": "https://<your-domain>/mcp",
+      "url": "https://16-170-207-120.sslip.io/mcp",
       "transport": "streamable-http"
     }
   }
@@ -173,17 +173,19 @@ docker compose -f docker-compose.prod.yml exec postgres \
 
 ---
 
-## 8. Going from MOCK → real LLMs
+## 8. Going from MOCK → real backends
 
-The deploy ships in **mock mode** (the `mock-dev` API keys make the in-memory
-vector store and canned LLM responses kick in). To flip to production:
+The deploy can run in full mock mode (`mock-dev` keys) or real mode.
+To enable real Pinecone + OpenAI:
 
-1. Edit `.env` and set real values for `PINECONE_API_KEY`, `ANTHROPIC_API_KEY`,
-   `OPENAI_API_KEY`.
-2. Replace the imports in `app/routers/demo.py` and `app/mcp_server.py` from
-   `mock_vector_store` / `mock_llm` to your real implementations under
-   `app/ingestion/pipeline.py` and `app/rag/`.
-3. `./deploy/deploy.sh`.
+1. Edit `.env` and set real values for `PINECONE_API_KEY` and `OPENAI_API_KEY`.
+2. Set:
+   - `LLM_PROVIDER=openai`
+   - `PINECONE_INDEX=<your-index-name>`
+   - `PINECONE_TEXT_FIELD=<your-index-field-map-text>` (often `text`)
+3. Re-run: `./deploy/deploy.sh`.
+
+No code changes are required; the app selects real vs mock services from env vars.
 
 ---
 
