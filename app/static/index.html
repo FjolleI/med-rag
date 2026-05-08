@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>MedRAG — Hosted RAG + MCP server</title>
+  <meta name="description" content="A hosted Retrieval-Augmented Generation API with an MCP server interface for medical knowledge bases." />
+  <link rel="stylesheet" href="/static/styles.css" />
+</head>
+<body>
+  <header class="hero">
+    <nav>
+      <span class="brand">MedRAG</span>
+      <div class="nav-links">
+        <a href="/docs">API Docs</a>
+        <a href="/mcp/info">MCP</a>
+        <a href="https://github.com" target="_blank" rel="noopener">GitHub</a>
+      </div>
+    </nav>
+
+    <div class="hero-content">
+      <span class="badge" id="mode-badge">checking…</span>
+      <h1>Medical knowledge, retrieved & cited.</h1>
+      <p class="lede">
+        A production-grade Retrieval-Augmented Generation service with a built-in
+        <strong>Model Context Protocol</strong> server. Drop it into Claude, Cursor,
+        or any MCP-aware client and query a domain-specific knowledge base with citations.
+      </p>
+      <div class="cta-row">
+        <a class="btn primary" href="#demo">Try the demo</a>
+        <a class="btn ghost" href="#mcp">Connect via MCP</a>
+      </div>
+    </div>
+  </header>
+
+  <section id="demo" class="panel">
+    <h2>Live demo</h2>
+    <p class="muted">
+      Ingest a few documents, then ask the model a question. Everything runs against
+      this hosted instance — no setup required.
+    </p>
+
+    <div class="grid">
+      <div class="card">
+        <h3>1 · Ingest a document</h3>
+        <input id="doc-title" placeholder="Title (e.g. Diabetes Overview)" />
+        <textarea id="doc-content" rows="4" placeholder="Paste medical text here…">Type 2 diabetes is a chronic condition that affects how the body metabolizes glucose. Common symptoms include increased thirst, frequent urination, and fatigue. First-line treatment usually combines lifestyle changes with metformin.</textarea>
+        <button id="ingest-btn">Ingest</button>
+        <pre id="ingest-out" class="output"></pre>
+      </div>
+
+      <div class="card">
+        <h3>2 · Ask a question</h3>
+        <input id="query-input" value="What is type 2 diabetes?" />
+        <button id="query-btn">Query</button>
+        <pre id="query-out" class="output"></pre>
+      </div>
+    </div>
+
+    <div class="card wide">
+      <div class="card-header">
+        <h3>Knowledge base</h3>
+        <button id="refresh-docs" class="link">refresh</button>
+      </div>
+      <pre id="docs-out" class="output"></pre>
+    </div>
+  </section>
+
+  <section id="mcp" class="panel alt">
+    <h2>Connect from an MCP client</h2>
+    <p class="muted">
+      Add this server to <code>claude_desktop_config.json</code>, Cursor's MCP settings,
+      or any other MCP-compatible client.
+    </p>
+
+    <pre class="output mcp-snippet" id="mcp-config"></pre>
+
+    <p class="muted small">
+      Tools available: <code>ingest_document</code>, <code>query</code>,
+      <code>list_documents</code>. Full schema at
+      <a id="mcp-info-link" href="/mcp/info">/mcp/info</a>.
+    </p>
+  </section>
+
+  <footer>
+    <span>MedRAG · FastAPI + MCP · running on Docker on AWS EC2</span>
+    <span><a href="/health">health</a> · <a href="/docs">docs</a></span>
+  </footer>
+
+  <script src="/static/app.js"></script>
+</body>
+</html>

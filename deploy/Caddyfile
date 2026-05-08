@@ -1,0 +1,31 @@
+# Caddy serves /api and /mcp behind auto-HTTPS for free.
+#
+# DOMAIN comes from the .env on the EC2 host. Defaults to a sslip.io
+# wildcard (e.g.  1-2-3-4.sslip.io) which resolves to your public IP without
+# any DNS registration.
+
+{$DOMAIN:localhost} {
+	encode zstd gzip
+
+	# Streamable-HTTP MCP transport — keep alive long-running streams
+	@mcp path /mcp /mcp/* /mcp/info
+	handle @mcp {
+		reverse_proxy api:8000 {
+			flush_interval -1
+			transport http {
+				read_timeout 1h
+				write_timeout 1h
+			}
+		}
+	}
+
+	# Everything else (API, /docs, landing page, /static)
+	reverse_proxy api:8000
+
+	header {
+		Strict-Transport-Security "max-age=31536000; includeSubDomains"
+		X-Content-Type-Options "nosniff"
+		Referrer-Policy "strict-origin-when-cross-origin"
+		-Server
+	}
+}
